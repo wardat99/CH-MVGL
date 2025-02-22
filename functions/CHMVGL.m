@@ -1,5 +1,30 @@
-function [Ak,Ck,G,time_cost] = CHMVGL(Xk,P,gamma_1,gamma_2,gamma_3,gamma_4,alpha)
+function [Ak,Ck,G,time_cost] = CHMVGL(Xk,P,gamma_1,gamma_2,gamma_3,gamma_4)
+% Multi-View Robust Tensor-based Subspace Clustering code.
+% Definition:
+%     [Ak,Ck,G,time_cost] = CHMVGL(Xk,P,gamma_1,gamma_2,gamma_3,gamma_4,alpha)
+%
+% Inputs:
+% Xk              [n*n*K] cell, contaions the samples for each views.
+% gamma_1         scalar, regularization parameter that controls the sparsity of C^k.
+% gamma_2         scalar, regularization parameter that controls the degree of C^k.
+% gamma_3         scalar, regularization parameter that controls the L_{2,1} norm.
+% gamma_4         scalar, regularization parameter that controls the sparsity of C^k.
+% 
+% 
+% 
+% Outputs:
+% Ak              3rd-mode tensor [n*n*K], the co-hub learned adjacency matrices.
+% Ck              3rd-mode tensor [n*n*K], the co-hub learned Laplacian matrices.
+% G               [n*n] matrix, contains the learned co-hub nodes.
+% Timecost        scalar, the time cost for each attempt.
+%
+%
 
+%%%%
+%
+% Copyright (C)   <Mohammad Al-Wardat> "alwardat@msu.edu"
+%  
+%%%%
 
 
 n=size(Xk{1},1);
@@ -15,7 +40,7 @@ Yk=zeros(n,n,K); Jk=Yk; Mk=Yk; N=zeros(n,n); Q=N; Ei=zeros(n-1,n-1,k); Tk=Yk;
 I=eye(n); Ci=Ck;
 max_iter = 500;
 tol=1e-3;
-
+alpha=1;
 
 tic;
 for iter=1:max_iter
@@ -68,16 +93,7 @@ for iter=1:max_iter
     
     
     G = solve_l1l2(V-Q./alpha,gamma_3./(2*alpha));
-    % GG=V-Q./alpha; GGd=diag(GG);
-    % 
-    %     G_nd=nodiag_construction(GG);
-    % 
-    % 
-    %     H = soft_scal(G_nd,gamma_2/(2*alpha)); 
-    %     G=diag_construction(H,GGd);
-        
-
-
+   
 
     %% Update Lag.
     for k=1:K
@@ -107,9 +123,7 @@ for iter=1:max_iter
     err(3)=norm(dMk(:),'fro'); err(4)=norm(dN(:),'fro');
     err(5)=norm(dQ(:),'fro'); err(6)=norm(dTk,'fro');
 
-    %if mod(iter,10) == 0
-    %    disp(['iter ' num2str(iter) ', err=' num2str(err)])
-    %end
+    
     err_max=max(err);
 
     if err_max < tol
@@ -118,18 +132,13 @@ for iter=1:max_iter
 end
 time_cost=toc;
 
-
-ThValue=0.01;
+%% Extract the co-hub adjacancy matrices from the learned co-hub Laplacian matrices.
+ThValue=0.005;   % Threashold value
         for k=1:K
         Akk=diag(diag(Ck(:,:,k)))-Ck(:,:,k); Akk=Akk./norm(Akk);
         Akk(Akk>ThValue)=1; 
         Akk(Akk<ThValue)=0;
-        Ak(:,:,k)=Akk; clear Akk
-                        
-        Aii=diag(diag(Ci(:,:,k)))-Ci(:,:,k); Aii=Aii/norm(((Aii)));
-        Aii(Aii>ThValue)=1; 
-        Aii(Aii<ThValue)=0; 
-        Ai(:,:,k)=Aii; clear Aii
+        Ak(:,:,k)=Akk; clear Akk  %% co-hub adjacancy matrices
         end
 
 
