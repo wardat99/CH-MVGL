@@ -6,12 +6,12 @@ warning off;
 %% This is a test for CH-MVGL method
 
 addpath('functions')
-max_num_run=10;       % The max rum of runs 
+max_num_run=50;       % The max rum of runs 
 for num_run =1:1:max_num_run
-n=2^8;              % Number of Nodes
+n=2^8;               % Number of Nodes
 p=0.1;               % Probability of connection for the graph
 hn_perc=0.02;        % Percentage of co-hub nodes
-num_views =6;        % Number of Views
+num_views =2;        % Number of Views
 num_coHub_nodes=int8(hn_perc*n); % Number of co-hub nodes 
 [Adj, A,hn] = get_hub_graph(n,num_coHub_nodes,num_views,p); % generate co-hub graphs 
  for jj=1:num_views
@@ -24,12 +24,11 @@ X{v} = gen_samples_new(A(:,:,v),n_signals,noise_amount,'heat')'; % generate the 
 end
 
 [P] = generate_P(n)'; % generate matrix P
-alpha=1;  
-delta1=15; delta2=20; delta3=35;
+delta1=56; delta2=15; delta3=45;
 gamma_1=delta1/p; gamma_2=delta2*n; gamma_3=delta3/hn_perc; gamma_4=delta1/p;
 
 fprintf('CH-MVGL attempt number start: %.2f\n' ,num_run);
-[Ak,Ck,G,time_cost(num_run)] = CHMVGL(X,P,gamma_1,gamma_2,gamma_3,gamma_4,alpha);
+[Ak,Ck,G,time_cost(num_run)] = CHMVGL(X,P,gamma_1,gamma_2,gamma_3,gamma_4);
 fprintf('CH-MVGL attempt number end: %.2f\n' ,num_run);
 
 %% compute the F-score
@@ -40,4 +39,4 @@ end
 f_avg_each_run(num_run)=mean(f(:,num_run));
 end
 fprintf('The avg. F-score across views is: %.2f\n' , mean(f_avg_each_run));
-fprintf('The avg. F-score across views is: %.2f\n' , mean(time_cost));
+fprintf('The avg. TIme cost is: %.2f\n' , mean(time_cost));
