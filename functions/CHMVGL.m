@@ -1,5 +1,5 @@
 function [Ak,Ck,G,time_cost] = CHMVGL(Xk,P,gamma_1,gamma_2,gamma_3,gamma_4)
-% Multi-View Robust Tensor-based Subspace Clustering code.
+% Co-Hub Node-Based Multiview Graph Learning.
 % Definition:
 %     [Ak,Ck,G,time_cost] = CHMVGL(Xk,P,gamma_1,gamma_2,gamma_3,gamma_4,alpha)
 %
